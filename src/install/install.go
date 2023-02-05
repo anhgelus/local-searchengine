@@ -4,6 +4,7 @@ import (
 	"bytes"
 	_ "embed"
 	"fmt"
+	"github.com/pelletier/go-toml/v2"
 	"os"
 	"os/exec"
 	"os/user"
@@ -16,6 +17,13 @@ import (
 
 type appInfo struct {
 	Path string
+}
+
+type Configuration struct {
+	Version       string
+	AppName       string
+	BlockList     []string
+	WallpaperPath string
 }
 
 //go:embed world.anhgelus.local-searchengine.plist
@@ -31,6 +39,15 @@ func App() error {
 		return fmt.Errorf("impossible de récupérer l'utilisateur courant %w", err)
 	}
 	home := nixUser.HomeDir
+	config, err := toml.Marshal(Configuration{
+		AppName:       "Local SearchEngine",
+		Version:       "0.1",
+		BlockList:     []string{""},
+		WallpaperPath: "",
+	})
+	if err != nil {
+		return fmt.Errorf("impossible de générer la configuration %s", err)
+	}
 	switch runtime.GOOS {
 	case "darwin":
 		plistPath := filepath.Join(home, "Library/LaunchAgents/world.anhgelus.local-searchengine.plist")
@@ -39,6 +56,7 @@ func App() error {
 			plistPath,
 			exec.Command("launchctl", "load", plistPath),
 		)
+		// TODO: generate the configuration for MacOS
 		if err == nil {
 			color.Green("Le service a été installé dans %s et activé !\n", plistPath)
 			fmt.Println("")
@@ -52,15 +70,18 @@ func App() error {
 			linuxPath,
 			exec.Command("systemctl", "enable", "--user", "local-searchengine.service"),
 		)
-		if err == nil {
-			color.Green("Le service a été installé dans %s et activé !\n", linuxPath)
-			fmt.Println("")
-			fmt.Println("Pour le démarrer :")
-			color.Blue("systemctl start --user local-searchengine.service")
-			fmt.Println("")
-			fmt.Println("Pour le désactiver :")
-			color.Blue("systemctl disable --nixUser local-searchengine.service")
+		configPath := filepath.Join(home, ".config/local-searchengine/config.toml")
+		err = os.WriteFile(configPath, config, 0644)
+		if err != nil {
+			return fmt.Errorf("impossible de créer et/ou écrire sur le fichier de configuration %s", err)
 		}
+		color.Green("Le service a été installé dans %s et activé !\n", linuxPath)
+		fmt.Println("")
+		fmt.Println("Pour le démarrer :")
+		color.Blue("systemctl start --user local-searchengine.service")
+		fmt.Println("")
+		fmt.Println("Pour le désactiver :")
+		color.Blue("systemctl disable --nixUser local-searchengine.service")
 	default:
 		return fmt.Errorf("système d'exploitation non géré %s", runtime.GOOS)
 	}
