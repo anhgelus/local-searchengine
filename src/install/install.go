@@ -18,22 +18,22 @@ type appInfo struct {
 	Path string
 }
 
-//go:embed com.grafisearch.plist
+//go:embed world.anhgelus.local-searchengine.plist
 var macOSService string
 
-//go:embed grafisearch.service
+//go:embed local-searchengine.service
 var linuxService string
 
-func InstallApp() error {
+func App() error {
 	var err error
-	user, err := user.Current()
+	nixUser, err := user.Current()
 	if err != nil {
 		return fmt.Errorf("impossible de récupérer l'utilisateur courant %w", err)
 	}
-	home := user.HomeDir
+	home := nixUser.HomeDir
 	switch runtime.GOOS {
 	case "darwin":
-		plistPath := filepath.Join(home, "Library/LaunchAgents/com.grafikart.grafisearch.plist")
+		plistPath := filepath.Join(home, "Library/LaunchAgents/world.anhgelus.local-searchengine.plist")
 		err = installService(
 			macOSService,
 			plistPath,
@@ -46,20 +46,20 @@ func InstallApp() error {
 			color.Blue("launchctl unload %s", plistPath)
 		}
 	case "linux":
-		linuxPath := filepath.Join(home, ".config/systemd/user/grafisearch.service")
+		linuxPath := filepath.Join(home, ".config/systemd/user/local-searchengine.service")
 		err = installService(
 			linuxService,
 			linuxPath,
-			exec.Command("systemctl", "enable", "--user", "grafisearch.service"),
+			exec.Command("systemctl", "enable", "--user", "local-searchengine.service"),
 		)
 		if err == nil {
 			color.Green("Le service a été installé dans %s et activé !\n", linuxPath)
 			fmt.Println("")
 			fmt.Println("Pour le démarrer :")
-			color.Blue("systemctl start --user grafisearch.service")
+			color.Blue("systemctl start --user local-searchengine.service")
 			fmt.Println("")
 			fmt.Println("Pour le désactiver :")
-			color.Blue("systemctl disable --user grafisearch.service")
+			color.Blue("systemctl disable --nixUser local-searchengine.service")
 		}
 	default:
 		return fmt.Errorf("système d'exploitation non géré %s", runtime.GOOS)
@@ -83,7 +83,10 @@ func installService(tpl string, dest string, cmd *exec.Cmd) error {
 		return fmt.Errorf("impossible de créer le fichier de service %w", err)
 	}
 
-	t.Execute(f, appInfo{Path: exePath})
+	err = t.Execute(f, appInfo{Path: exePath})
+	if err != nil {
+		return err
+	}
 	var out bytes.Buffer
 	var stderr bytes.Buffer
 	cmd.Stdout = &out

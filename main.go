@@ -27,7 +27,7 @@ var staticContent embed.FS
 
 func main() {
 	if len(os.Args) >= 2 && os.Args[1] == "install" {
-		err := install.InstallApp()
+		err := install.App()
 		if err != nil {
 			panic(err)
 		}

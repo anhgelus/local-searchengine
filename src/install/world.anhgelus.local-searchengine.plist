@@ -3,7 +3,7 @@
 <plist version="1.0">
     <dict>
         <key>Label</key>
-        <string>com.grafikart.grafisearch</string>
+        <string>world.anhgelus.local-searchengine</string>
 
         <key>RunAtLoad</key>
         <true/>

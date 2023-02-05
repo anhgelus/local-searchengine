@@ -1,5 +1,5 @@
 [Unit]
-Description=Grafisearch
+Description=Local SearchEngine
 After=network-online.target
 Wants=network-online.target
 
