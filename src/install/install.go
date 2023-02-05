@@ -4,6 +4,7 @@ import (
 	"bytes"
 	_ "embed"
 	"fmt"
+	"github.com/anhgelus/local-searchengine/src/customization"
 	"github.com/pelletier/go-toml/v2"
 	"os"
 	"os/exec"
@@ -24,6 +25,7 @@ type Configuration struct {
 	AppName       string
 	BlockList     []string
 	WallpaperPath string
+	LogoPath      string
 }
 
 //go:embed world.anhgelus.local-searchengine.plist
@@ -42,8 +44,9 @@ func App() error {
 	config, err := toml.Marshal(Configuration{
 		AppName:       "Local SearchEngine",
 		Version:       "0.1",
-		BlockList:     []string{""},
+		BlockList:     customization.DefaultBlocklist,
 		WallpaperPath: "",
+		LogoPath:      "",
 	})
 	if err != nil {
 		return fmt.Errorf("impossible de générer la configuration %s", err)
@@ -71,9 +74,17 @@ func App() error {
 			exec.Command("systemctl", "enable", "--user", "local-searchengine.service"),
 		)
 		configPath := filepath.Join(home, ".config/local-searchengine/config.toml")
-		err = os.WriteFile(configPath, config, 0644)
+		err := os.MkdirAll(filepath.Join(home, ".config/local-searchengine/"), 0764)
 		if err != nil {
-			return fmt.Errorf("impossible de créer et/ou écrire sur le fichier de configuration %s", err)
+			return fmt.Errorf("impossible de créer le dossier de configuration %s", err)
+		}
+		file, err := os.Create(configPath)
+		if err != nil {
+			return fmt.Errorf("impossible de créer le fichier de configuration %s", err)
+		}
+		_, err = file.Write(config)
+		if err != nil {
+			return fmt.Errorf("impossible d'écrire le fichier de configuration %s", err)
 		}
 		color.Green("Le service a été installé dans %s et activé !\n", linuxPath)
 		fmt.Println("")
@@ -81,7 +92,7 @@ func App() error {
 		color.Blue("systemctl start --user local-searchengine.service")
 		fmt.Println("")
 		fmt.Println("Pour le désactiver :")
-		color.Blue("systemctl disable --nixUser local-searchengine.service")
+		color.Blue("systemctl disable --user local-searchengine.service")
 	default:
 		return fmt.Errorf("système d'exploitation non géré %s", runtime.GOOS)
 	}

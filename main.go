@@ -4,6 +4,7 @@ import (
 	"embed"
 	"encoding/json"
 	"fmt"
+	"github.com/anhgelus/local-searchengine/src/customization"
 	"github.com/anhgelus/local-searchengine/src/features"
 	"github.com/anhgelus/local-searchengine/src/install"
 	"github.com/anhgelus/local-searchengine/src/searchengines"
@@ -25,12 +26,25 @@ var index string
 //go:embed resources/templates/stats.html
 var statsHTML string
 
-//go:embed static/*
+//go:embed resources/static
 var staticContent embed.FS
 
-var Config install.Configuration
+var config install.Configuration
+
+var extensions = map[string]string{
+	"css": "text/css",
+	"js":  "text/javascript",
+	"svg": "image/svg+xml",
+	"ogg": "audio/ogg",
+}
 
 func main() {
+	if len(os.Args) > 1 && os.Args[1] == "install" {
+		err := install.App()
+		if err != nil {
+			panic(err)
+		}
+	}
 	nixUser, err := user.Current()
 	if err != nil {
 		panic(fmt.Errorf("impossible de récupérer l'utilisateur courant %w", err))
@@ -45,22 +59,17 @@ func main() {
 		if err != nil {
 			panic(err)
 		}
-		err = toml.Unmarshal(b, &Config)
+		err = toml.Unmarshal(b, &config)
 		if err != nil {
 			panic(err)
 		}
 	default:
 		panic(fmt.Errorf("système d'exploitation non géré %s", runtime.GOOS))
 	}
-	if len(os.Args) >= 2 && os.Args[1] == "install" {
-		err := install.App()
-		if err != nil {
-			panic(err)
-		}
-		return
-	}
 
-	result, _ := parseHomepage(Config.WallpaperPath)
+	customization.UpdateBlockList(config.BlockList)
+
+	result, _ := parseHomepage(config.WallpaperPath)
 
 	homePage := &result
 
@@ -70,7 +79,7 @@ func main() {
 	http.HandleFunc("/api/log", utils.LogResult)
 
 	// Static files
-	http.Handle("/static/", http.FileServer(http.FS(staticContent)))
+	http.HandleFunc("/static/", serveStatic)
 	http.HandleFunc("/weather", serveWeather)
 	http.HandleFunc("/", serveHome(homePage))
 	http.HandleFunc("/stats", serveStats)
@@ -144,7 +153,7 @@ func serveStats(w http.ResponseWriter, r *http.Request) {
 		serveError(w, err)
 		return
 	}
-	stats, err := features.LoadStats()
+	stats, err := features.LoadStats(config.AppName)
 	if err != nil {
 		serveError(w, err)
 		return
@@ -163,15 +172,21 @@ func parseHomepage(wallpaper string) (string, error) {
 	}
 
 	tempWriter := new(strings.Builder)
+	if config.LogoPath == "" {
+		config.LogoPath = "/static/logo.svg#logo"
+	} else {
+		config.LogoPath = fmt.Sprintf("<img src='%s' alt='%s'>", config.LogoPath, "Logo")
+	}
 	err = t.Execute(tempWriter, map[string]interface{}{
 		"background": wallpaper,
 		"bangs":      template.JS(bangs),
+		"appName":    config.AppName,
+		"logo":       config.LogoPath,
 	})
 	if err != nil {
 		return "", err
 	}
 	s := tempWriter.String()
-	s = strings.ReplaceAll(s, "/assets/app.ts", "/static/app.js")
 	s = strings.ReplaceAll(s, "<style>", "<link rel=\"stylesheet\" href=\"/static/style.css\"></link>\n  <style>")
 	return s, nil
 }
@@ -180,4 +195,19 @@ func setupCORS(r *http.ResponseWriter) {
 	(*r).Header().Set("Access-Control-Allow-Origin", "*")
 	(*r).Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
 	(*r).Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
+}
+
+func serveStatic(w http.ResponseWriter, r *http.Request) {
+	path := r.URL.Path
+	_, extension, _ := strings.Cut(path, ".")
+	for e, ext := range extensions {
+		if extension == e {
+			w.Header().Set("Content-Type", ext)
+		}
+	}
+	content, err := staticContent.ReadFile("resources" + path)
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+	}
+	w.Write(content)
 }

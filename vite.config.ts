@@ -11,7 +11,7 @@ export default defineConfig({
   },
   build: {
     lib: {
-      entry: resolve(__dirname, 'assets/app.ts'),
+      entry: resolve(__dirname, 'resources/assets/app.ts'),
       formats: ['es'],
       name: 'app',
       fileName: 'app'
@@ -19,7 +19,7 @@ export default defineConfig({
     rollupOptions: {
       output: { entryFileNames: "[name].js" },
     },
-    outDir: resolve(__dirname, 'static'),
+    outDir: resolve(__dirname, 'resources/static'),
     emptyOutDir: false,
   },
 });

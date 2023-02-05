@@ -14,6 +14,7 @@ type SearchStats struct {
 	HitRateGoogle      int
 	HitRateNotOnGoogle int
 	Results            []StatsRow
+	AppName            string
 }
 
 type StatsRow struct {
@@ -23,7 +24,7 @@ type StatsRow struct {
 	URL    string
 }
 
-func LoadStats() (*SearchStats, error) {
+func LoadStats(an string) (*SearchStats, error) {
 	u, err := user.Current()
 	if err != nil {
 		return nil, err
@@ -77,6 +78,7 @@ func LoadStats() (*SearchStats, error) {
 		HitRateGoogle:      hitRateGoogle,
 		HitRateNotOnGoogle: hitRateNotOnGoogle,
 		Results:            results,
+		AppName:            an,
 	}, nil
 }
 
