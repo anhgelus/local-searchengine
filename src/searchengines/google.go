@@ -1,7 +1,9 @@
-package main
+package searchengines
 
 import (
 	"fmt"
+	"github.com/anhgelus/local-searchengine/src/customization"
+	"github.com/anhgelus/local-searchengine/src/utils"
 	"math"
 	"net/url"
 	"strings"
@@ -9,8 +11,8 @@ import (
 	"github.com/PuerkitoBio/goquery"
 )
 
-func parseGoogleResponse(q string) ([]SearchResult, error) {
-	res, err := fetch(fmt.Sprintf("https://google.com/search?q=%s", url.QueryEscape(q)))
+func ParseGoogleResponse(q string) ([]SearchResult, error) {
+	res, err := utils.Fetch(fmt.Sprintf("https://google.com/search?q=%s", url.QueryEscape(q)))
 	if err != nil {
 		return nil, err
 	}
@@ -36,12 +38,12 @@ func parseGoogleResponse(q string) ([]SearchResult, error) {
 		if link != "" && link != "#" && !strings.HasPrefix(link, "/") {
 			u, err := url.Parse(link)
 			_, linkAlreadyListed := urls[link]
-			if err == nil && !isBlockedSite(u.Host) && !linkAlreadyListed {
+			if err == nil && !customization.IsBlockedSite(u.Host) && !linkAlreadyListed {
 				urls[link] = 1
 				result := SearchResult{
 					URL:     link,
-					Title:   stringOrEmpty(title.Html()),
-					Desc:    stringOrEmpty(desc.Html()),
+					Title:   utils.StringOrEmpty(title.Html()),
+					Desc:    utils.StringOrEmpty(desc.Html()),
 					Domain:  u.Host,
 					Author:  cite.First().Text(),
 					Related: extractRelated(item.Find(".fl")),
@@ -75,7 +77,7 @@ func parseGoogleResponse(q string) ([]SearchResult, error) {
 			})
 		}
 		max := int(math.Min(float64(len(videos)-1), 3))
-		results = insertSlice(results, videos[:max], 2)
+		results = utils.InsertSlice(results, videos[:max], 2)
 	}
 
 	return results, err
@@ -111,7 +113,7 @@ func extractSameSite(s *goquery.Selection, r *[]SearchResult) {
 		*r = append(*r, SearchResult{
 			URL:    href,
 			Title:  a.Text(),
-			Desc:   strings.Trim(stringOrEmpty(desc.Html()), "<br/>"),
+			Desc:   strings.Trim(utils.StringOrEmpty(desc.Html()), "<br/>"),
 			Domain: u.Host,
 		})
 	}
@@ -130,7 +132,7 @@ func extractNestedLi(s *goquery.Selection, r *[]SearchResult) {
 		*r = append(*r, SearchResult{
 			URL:    href,
 			Title:  title.Text(),
-			Desc:   strings.Trim(stringOrEmpty(desc.Find("span").Last().Html()), "<br/>"),
+			Desc:   strings.Trim(utils.StringOrEmpty(desc.Find("span").Last().Html()), "<br/>"),
 			Domain: u.Host,
 		})
 	}

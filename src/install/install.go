@@ -1,4 +1,4 @@
-package main
+package install
 
 import (
 	"bytes"
@@ -18,13 +18,13 @@ type appInfo struct {
 	Path string
 }
 
-//go:embed install/com.grafisearch.plist
+//go:embed com.grafisearch.plist
 var macOSService string
 
-//go:embed install/grafisearch.service
+//go:embed grafisearch.service
 var linuxService string
 
-func installApp() error {
+func InstallApp() error {
 	var err error
 	user, err := user.Current()
 	if err != nil {

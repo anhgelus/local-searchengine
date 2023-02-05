@@ -3,8 +3,8 @@ dist/
 /grafisearch
 
 # Assets
-/static/app.js
-/static/style.css
+/resources/static/app.js
+/resources/static/style.css
 
 # Logs
 logs

@@ -4,6 +4,11 @@ import (
 	"embed"
 	"encoding/json"
 	"fmt"
+	"github.com/anhgelus/local-searchengine/src/customization"
+	"github.com/anhgelus/local-searchengine/src/features"
+	"github.com/anhgelus/local-searchengine/src/install"
+	"github.com/anhgelus/local-searchengine/src/searchengines"
+	"github.com/anhgelus/local-searchengine/src/utils"
 	"html/template"
 	"log"
 	"net/http"
@@ -11,24 +16,10 @@ import (
 	"strings"
 )
 
-type Link struct {
-	Title string `json:"title"`
-	URL   string `json:"url"`
-}
-
-type SearchResult struct {
-	URL     string `json:"url"`
-	Title   string `json:"title"`
-	Desc    string `json:"desc"`
-	Domain  string `json:"domain"`
-	Author  string `json:"author,omitempty"`
-	Related []Link `json:"related,omitempty"`
-}
-
-//go:embed index.html
+//go:embed resources/templates/index.html
 var index string
 
-//go:embed stats.html
+//go:embed resources/templates/stats.html
 var statsHTML string
 
 //go:embed static/*
@@ -36,7 +27,7 @@ var staticContent embed.FS
 
 func main() {
 	if len(os.Args) >= 2 && os.Args[1] == "install" {
-		err := installApp()
+		err := install.InstallApp()
 		if err != nil {
 			panic(err)
 		}
@@ -46,7 +37,7 @@ func main() {
 	result, _ := parseHomepage("")
 
 	homePage := &result
-	c := bingWallpaperFetcher()
+	c := customization.BingWallpaperFetcher()
 	go func() {
 		for wallpaper := range c {
 			result, err := parseHomepage(wallpaper)
@@ -58,9 +49,9 @@ func main() {
 	}()
 
 	// API
-	http.HandleFunc("/api/google", serveWithParser(parseGoogleResponse))
-	http.HandleFunc("/api/ddg", serveWithParser(ParseDDGResponse))
-	http.HandleFunc("/api/log", logResult)
+	http.HandleFunc("/api/google", serveWithParser(searchengines.ParseGoogleResponse))
+	http.HandleFunc("/api/ddg", serveWithParser(searchengines.ParseDDGResponse))
+	http.HandleFunc("/api/log", utils.LogResult)
 
 	// Static files
 	http.Handle("/static/", http.FileServer(http.FS(staticContent)))
@@ -73,11 +64,11 @@ func main() {
 	log.Fatal(http.ListenAndServe(":8042", nil))
 }
 
-func serveWithParser(fn func(string) ([]SearchResult, error)) http.HandlerFunc {
+func serveWithParser(fn func(string) ([]searchengines.SearchResult, error)) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		setupCORS(&w)
 		q := r.URL.Query().Get("q")
-		results, err := fn(parseFilterBangs(q))
+		results, err := fn(features.ParseFilterBangs(q))
 		if err != nil {
 			serveError(w, err)
 			return
@@ -112,7 +103,7 @@ func serveHome(homePage *string) http.HandlerFunc {
 			return
 		}
 		q := r.URL.Query().Get("q")
-		redirect := parseRedirectBangs(q)
+		redirect := features.ParseRedirectBangs(q)
 		if redirect != "" {
 			serveRedirect(w, redirect)
 			return
@@ -123,7 +114,7 @@ func serveHome(homePage *string) http.HandlerFunc {
 
 func serveWeather(w http.ResponseWriter, r *http.Request) {
 	q := r.URL.Query().Get("q")
-	url, err := extractUrlFromYrNoDk(q)
+	url, err := features.ExtractUrlFromYrNoDk(q)
 	if err != nil {
 		serveError(w, err)
 		return
@@ -137,7 +128,7 @@ func serveStats(w http.ResponseWriter, r *http.Request) {
 		serveError(w, err)
 		return
 	}
-	stats, err := loadStats()
+	stats, err := features.LoadStats()
 	if err != nil {
 		serveError(w, err)
 		return
@@ -146,7 +137,7 @@ func serveStats(w http.ResponseWriter, r *http.Request) {
 }
 
 func parseHomepage(wallpaper string) (string, error) {
-	bangs, err := json.Marshal(redirectBangs)
+	bangs, err := json.Marshal(features.RedirectBangs)
 	if err != nil {
 		return "", err
 	}

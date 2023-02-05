@@ -1,4 +1,4 @@
-package main
+package customization
 
 import (
 	"fmt"
@@ -14,7 +14,7 @@ const (
 	bingAPI = `https://www.bing.com/HPImageArchive.aspx?format=xml&idx=%d&n=1&mkt=%s`
 )
 
-func bingWallpaper() (string, error) {
+func BingWallpaper() (string, error) {
 
 	client := &http.Client{
 		Timeout: 5 * time.Second,
@@ -50,8 +50,8 @@ func bingWallpaper() (string, error) {
 	return fmt.Sprintf("%s%s_%s", bingURL, imgElem.SelectElement("urlBase").Text(), "1920x1080.jpg"), nil
 }
 
-// Fetch bing wallpaper and retry every 30 seconds if necessary
-func bingWallpaperFetcher() chan string {
+// BingWallpaperFetcher Fetch bing wallpaper and retry every 30 seconds if necessary
+func BingWallpaperFetcher() chan string {
 	retries := 0
 	c := make(chan string, 1)
 	t := time.NewTicker(time.Second * 30)
@@ -59,7 +59,7 @@ func bingWallpaperFetcher() chan string {
 		defer t.Stop()
 		for ; true; <-t.C {
 			retries++
-			w, err := bingWallpaper()
+			w, err := BingWallpaper()
 			if err == nil {
 				c <- w
 				close(c)

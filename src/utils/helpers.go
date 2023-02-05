@@ -1,6 +1,6 @@
-package main
+package utils
 
-func insertSlice[T any](original []T, inserted []T, n int) []T {
+func InsertSlice[T any](original []T, inserted []T, n int) []T {
 	newSlice := make([]T, 0, len(inserted)+len(original))
 	newSlice = append(newSlice, original[:n]...)
 	newSlice = append(newSlice, inserted...)
@@ -8,7 +8,7 @@ func insertSlice[T any](original []T, inserted []T, n int) []T {
 	return newSlice
 }
 
-func stringOrEmpty(s string, err error) string {
+func StringOrEmpty(s string, err error) string {
 	if err != nil {
 		return ""
 	}

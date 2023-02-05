@@ -1,4 +1,4 @@
-package main
+package customization
 
 import "strings"
 
@@ -11,7 +11,7 @@ var blocklist = []string{
 	"pinterest.fr",
 }
 
-func isBlockedSite(s string) bool {
+func IsBlockedSite(s string) bool {
 	for _, domain := range blocklist {
 		if strings.HasSuffix(s, domain) {
 			return true

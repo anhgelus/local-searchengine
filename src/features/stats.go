@@ -1,4 +1,4 @@
-package main
+package features
 
 import (
 	"encoding/csv"
@@ -23,7 +23,7 @@ type StatsRow struct {
 	URL    string
 }
 
-func loadStats() (*SearchStats, error) {
+func LoadStats() (*SearchStats, error) {
 	u, err := user.Current()
 	if err != nil {
 		return nil, err

@@ -1,4 +1,4 @@
-package main
+package features
 
 import (
 	"fmt"
@@ -12,7 +12,7 @@ var filterBangs = map[string]string{
 	"!i":  "site:stackoverflow.com OR site:github.com",
 }
 
-var redirectBangs = map[string]string{
+var RedirectBangs = map[string]string{
 	"!rt":   "https://www.rottentomatoes.com/search?search=%s",
 	"!npm":  "https://www.npmjs.com/search?q=%s",
 	"!tr":   "https://www.wordreference.com/enfr/%s",
@@ -26,7 +26,7 @@ var redirectBangs = map[string]string{
 	"!img":  "https://duckduckgo.com/?q=%s&iax=images&ia=images",
 }
 
-func parseFilterBangs(q string) string {
+func ParseFilterBangs(q string) string {
 	for bang, replace := range filterBangs {
 		if strings.HasPrefix(q, bang+" ") ||
 			strings.HasSuffix(q, " "+bang) {
@@ -36,11 +36,11 @@ func parseFilterBangs(q string) string {
 	return q
 }
 
-func parseRedirectBangs(q string) string {
+func ParseRedirectBangs(q string) string {
 	if q == "" {
 		return ""
 	}
-	for bang, redirect := range redirectBangs {
+	for bang, redirect := range RedirectBangs {
 		if strings.HasPrefix(q, bang+" ") ||
 			strings.HasSuffix(q, " "+bang) {
 			return fmt.Sprintf(

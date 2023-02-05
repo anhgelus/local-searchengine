@@ -1,11 +1,11 @@
-package main
+package utils
 
 import (
 	"fmt"
 	"net/http"
 )
 
-func fetch(url string) (*http.Response, error) {
+func Fetch(url string) (*http.Response, error) {
 	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
 		return nil, err

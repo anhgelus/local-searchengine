@@ -8,5 +8,8 @@
     "lib": ["ESNext", "DOM"],
     "strict": true
   },
-  "include": ["assets/**/*.d.ts", "assets/**/*.ts"],
+  "include": [
+    "resources/assets/**/*.d.ts",
+    "resources/assets/**/*.ts"
+  ],
 }

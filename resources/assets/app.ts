@@ -1,10 +1,10 @@
-import { bangs } from './middlewares/bangs.js'
-import { calculator } from './middlewares/calculator.js';
+import { bangs } from './middlewares/bangs'
+import { calculator } from './middlewares/calculator';
 import './css/app.scss'
 import type { SearchResult } from "./types";
-import { youtubeThumbnail } from './youtube.js';
+import { youtubeThumbnail } from './youtube';
 import { timer } from './middlewares/timer'
-import { uppercase } from './middlewares/uppercase.js';
+import { uppercase } from './middlewares/uppercase';
 
 const form = document.querySelector('form') as HTMLFormElement
 const url = new URL(window.location.href)

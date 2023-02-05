@@ -1,23 +1,27 @@
-# GrafiSearch
+# Local SearchEngine
 
-A moteur de recherche personnalisé pour correspondre à mes besoins (pensé pour un usage personnel en local et pas pour être hébergé en ligne).
-L'objectif est aussi de loguer mes recherches en préparation d'une vidéo sur la pertinence des moteurs de recherche.
+Powerful customizable local search engine based on [Grafisearch](https://github.com/Grafikart/Grafisearch).
 
-## Pourquoi ?
+## Features
 
-Chacun a sa vision du moteur de recherche perso, mes points importants sont les suivants : 
+- Nice wallpaper background (like Bing)
+- Fast
+- Support bangs (!rt, !wrenfr...)
+- Customizable theme
+- Instant response in some cases (like timer, calculatrice)
+- Have information in the full screen
+- Block some trash websites or "pay to view" website (pinterest, allocine, jeuxvideos.com...)
+- No ads
 
-- Avoir un joli fond d'écran en homepage (à la bing)
-- La page doit s'afficher rapidement
-- La recherche doit supporter les bangs (!rt, !wrenfr...)
-- Le thème doit être personnalisable
-- Des réponses instantanées pour des cas simples (timer, calculatrice)
-- Remplir la totalité de l'écran (souvent l'espace à droite n'est pas utilisé)
-- Supprimer les sites poubelles ou les sites "pay to view" (pinterest, allocine, jeuxvideos.com...)
-- Pas de publicité 
+## How does it work?
 
-## Comment ? 
+The goal is to create a binary starting a webserver and the search engine. 
+This server will take the results from some search engines and will reformat this results.
 
-L'objectif est donc d'avoir un binaire qui lance un serveur web (pour que ça soit rapide) qui servira de moteur de recherche.
-Ce serveur web récupèrera les résultats des différents moteur de recherche pour les reformater.
+## Technologies
+
+- Go 1.20
+- PuerkitoBio/goquery v1.8.0
+- beevik/etree v1.1.0
+- fatih/color v1.14.1
 

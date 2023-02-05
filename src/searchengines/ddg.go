@@ -1,7 +1,9 @@
-package main
+package searchengines
 
 import (
 	"fmt"
+	"github.com/anhgelus/local-searchengine/src/customization"
+	"github.com/anhgelus/local-searchengine/src/utils"
 	"net/url"
 
 	"github.com/PuerkitoBio/goquery"
@@ -9,7 +11,7 @@ import (
 
 func ParseDDGResponse(q string) ([]SearchResult, error) {
 	searchURL := fmt.Sprintf("https://html.duckduckgo.com/html/?q=%s", url.QueryEscape(q))
-	res, err := fetch(searchURL)
+	res, err := utils.Fetch(searchURL)
 
 	if err != nil {
 		return nil, err
@@ -32,11 +34,11 @@ func ParseDDGResponse(q string) ([]SearchResult, error) {
 		desc, _ := item.Find(".result__snippet").Html()
 		u, err := url.Parse(link)
 		if err == nil &&
-			!isBlockedSite(u.Host) &&
+			!customization.IsBlockedSite(u.Host) &&
 			!item.HasClass("result--ad") {
 			results = append(results, SearchResult{
 				URL:    link,
-				Title:  stringOrEmpty(title.Html()),
+				Title:  utils.StringOrEmpty(title.Html()),
 				Desc:   desc,
 				Domain: u.Host,
 			})

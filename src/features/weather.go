@@ -1,8 +1,9 @@
-package main
+package features
 
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/anhgelus/local-searchengine/src/utils"
 	"net/url"
 	"strings"
 )
@@ -16,8 +17,8 @@ type yrNoDkSuggest struct {
 	} `json:"_embedded,omitempty"`
 }
 
-func extractUrlFromYrNoDk(s string) (string, error) {
-	r, err := fetch(fmt.Sprintf("https://www.yr.no/api/v0/locations/suggest?language=fr&q=%s", url.QueryEscape(s)))
+func ExtractUrlFromYrNoDk(s string) (string, error) {
+	r, err := utils.Fetch(fmt.Sprintf("https://www.yr.no/api/v0/locations/suggest?language=fr&q=%s", url.QueryEscape(s)))
 	if err != nil {
 		return "", err
 	}
