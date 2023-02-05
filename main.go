@@ -4,15 +4,18 @@ import (
 	"embed"
 	"encoding/json"
 	"fmt"
-	"github.com/anhgelus/local-searchengine/src/customization"
 	"github.com/anhgelus/local-searchengine/src/features"
 	"github.com/anhgelus/local-searchengine/src/install"
 	"github.com/anhgelus/local-searchengine/src/searchengines"
 	"github.com/anhgelus/local-searchengine/src/utils"
+	"github.com/pelletier/go-toml/v2"
 	"html/template"
 	"log"
 	"net/http"
 	"os"
+	"os/user"
+	"path/filepath"
+	"runtime"
 	"strings"
 )
 
@@ -25,7 +28,30 @@ var statsHTML string
 //go:embed static/*
 var staticContent embed.FS
 
+var Config install.Configuration
+
 func main() {
+	nixUser, err := user.Current()
+	if err != nil {
+		panic(fmt.Errorf("impossible de récupérer l'utilisateur courant %w", err))
+	}
+	home := nixUser.HomeDir
+	switch runtime.GOOS {
+	case "darwin":
+		// TODO: get the config file
+	case "linux":
+		configPath := filepath.Join(home, ".config/local-searchengine/config.toml")
+		b, err := os.ReadFile(configPath)
+		if err != nil {
+			panic(err)
+		}
+		err = toml.Unmarshal(b, &Config)
+		if err != nil {
+			panic(err)
+		}
+	default:
+		panic(fmt.Errorf("système d'exploitation non géré %s", runtime.GOOS))
+	}
 	if len(os.Args) >= 2 && os.Args[1] == "install" {
 		err := install.App()
 		if err != nil {
@@ -34,19 +60,9 @@ func main() {
 		return
 	}
 
-	result, _ := parseHomepage("")
+	result, _ := parseHomepage(Config.WallpaperPath)
 
 	homePage := &result
-	c := customization.BingWallpaperFetcher()
-	go func() {
-		for wallpaper := range c {
-			result, err := parseHomepage(wallpaper)
-			if err == nil {
-				*homePage = result
-			}
-			return
-		}
-	}()
 
 	// API
 	http.HandleFunc("/api/google", serveWithParser(searchengines.ParseGoogleResponse))
