@@ -69,6 +69,6 @@ This server will take the results from some search engines and will reformat thi
 
 - Go 1.20
 - PuerkitoBio/goquery v1.8.0
-- beevik/etree v1.1.0
 - fatih/color v1.14.1
+- pelletier/go-toml/v2 v2.0.6
 
