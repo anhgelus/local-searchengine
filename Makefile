@@ -1,20 +1,21 @@
 .PHONY: godev
 build: 
 	pnpm run build
-	go build
+	go build -o local-searchengine .
+
+.PHONY: godev
+run:
+	./local-searchengine
 
 .PHONY: godev
 dev:
-	gow run .
+	make build
+	make run
 
 .PHONY: frontdev
 frontdev:
 	pnpm run dev
 
 .PHONY: install
-install: grafisearch
-	./grafisearch install
-
-grafisearch: 
-	pnpm run build
-	go build
+install: local-searchengine
+	./local-searchengine install
