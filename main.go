@@ -10,7 +10,7 @@ import (
 	"github.com/anhgelus/local-searchengine/src/searchengines"
 	"github.com/anhgelus/local-searchengine/src/utils"
 	"github.com/pelletier/go-toml/v2"
-	"html/template"
+	htmlTemplate "html/template"
 	"log"
 	"net/http"
 	"os"
@@ -18,6 +18,7 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
+	"text/template"
 )
 
 //go:embed resources/templates/index.html
@@ -172,16 +173,24 @@ func parseHomepage(wallpaper string) (string, error) {
 	}
 
 	tempWriter := new(strings.Builder)
+	var logo string
 	if config.LogoPath == "" {
-		config.LogoPath = "/static/logo.svg#logo"
+		logo = "/static/logo.svg#logo"
 	} else {
-		config.LogoPath = fmt.Sprintf("<img src='%s' alt='%s'>", config.LogoPath, "Logo")
+		logo, err = utils.GeneratePathForHTML(&config.LogoPath)
+		if err != nil {
+			panic(err)
+		}
+	}
+	wp, err := utils.GeneratePathForCss(&wallpaper)
+	if err != nil {
+		panic(err)
 	}
 	err = t.Execute(tempWriter, map[string]interface{}{
-		"background": wallpaper,
-		"bangs":      template.JS(bangs),
+		"background": wp,
+		"bangs":      htmlTemplate.JS(bangs),
 		"appName":    config.AppName,
-		"logo":       config.LogoPath,
+		"logo":       logo,
 	})
 	if err != nil {
 		return "", err

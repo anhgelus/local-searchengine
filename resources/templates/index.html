@@ -5,7 +5,8 @@
   <title>{{ .appName }}</title>
   <style>
     body {
-      background-image: url({{ .background }});
+      background-image: {{ .background }};
+      {{ .background }}
     }
   </style>
   <script src="/static/app.js" type="module" defer></script>
