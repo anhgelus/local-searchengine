@@ -84,26 +84,26 @@ const injectResult = (selector: string) => (results: SearchResult[]) => {
       return `<div class="result result--img">
             <img class="result__img" src="${img}" alt="">
             <div>
-              <a tabindex="-1" rel="noopener noreferrer" class="result__title" href="${r.url}">${r.title}</a>
+              <a tabindex="-1" rel="noopener noreferrer" class="result__title" href="${r.url}" target="_blank">${r.title}</a>
               <div tabindex="-1" class="result__url">
                   <img src="${favicon}" alt="">
                   <span>${author}</span>
               </div>
               <p class="result__desc">${duration}</p>
             </div>
-            <a class="result__link" rel="noopener noreferrer" href="${r.url}"></a>
+            <a class="result__link" rel="noopener noreferrer" href="${r.url}" target="_blank"></a>
             ${logButton(!isGoogle, r.url)}
         </div>`
     }
     return `<div class="result">
-      <a tabindex="-1" class="result__title" rel="noopener noreferrer" href="${r.url}">${r.title}</a>
+      <a tabindex="-1" class="result__title" rel="noopener noreferrer" href="${r.url}" target="_blank">${r.title}</a>
       <div tabindex="-1" class="result__url">
           <img src="${favicon}" alt="">
           <span>${link}</span>
       </div>
       <p class="result__desc">${r.desc}</p>
       ${buildRelated(r)}
-      <a class="result__link" rel="noopener noreferrer" href="${r.url}"></a>
+      <a class="result__link" rel="noopener noreferrer" href="${r.url}" target="_blank"></a>
       ${logButton(!isGoogle, r.url)}
     </div>`
   }).join('')
