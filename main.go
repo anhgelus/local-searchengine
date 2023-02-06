@@ -85,6 +85,9 @@ func main() {
 	http.HandleFunc("/", serveHome(homePage))
 	http.HandleFunc("/stats", serveStats)
 
+	// Local files
+	http.HandleFunc("/local/", serveLocal)
+
 	// Start the server
 	fmt.Println("Listening on http://localhost:8042")
 	log.Fatal(http.ListenAndServe(":8042", nil))
@@ -177,12 +180,12 @@ func parseHomepage(wallpaper string) (string, error) {
 	if config.LogoPath == "" {
 		logo = "/static/logo.svg#logo"
 	} else {
-		logo, err = utils.GeneratePathForHTML(&config.LogoPath)
+		logo = utils.GeneratePathForHTML(&config.LogoPath)
 		if err != nil {
 			panic(err)
 		}
 	}
-	wp, err := utils.GeneratePathForCss(&wallpaper)
+	wp := utils.GeneratePathForCss(&wallpaper)
 	if err != nil {
 		panic(err)
 	}
@@ -207,6 +210,25 @@ func setupCORS(r *http.ResponseWriter) {
 }
 
 func serveStatic(w http.ResponseWriter, r *http.Request) {
+	setContentType(w, r)
+	content, err := staticContent.ReadFile("resources" + r.URL.Path)
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+	}
+	w.Write(content)
+}
+
+func serveLocal(w http.ResponseWriter, r *http.Request) {
+	setContentType(w, r)
+	realPath := strings.ReplaceAll(r.URL.Path, "/local", "")
+	content, err := utils.ReadFile(&realPath)
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+	}
+	w.Write(content)
+}
+
+func setContentType(w http.ResponseWriter, r *http.Request) {
 	path := r.URL.Path
 	_, extension, _ := strings.Cut(path, ".")
 	for e, ext := range extensions {
@@ -214,9 +236,4 @@ func serveStatic(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set("Content-Type", ext)
 		}
 	}
-	content, err := staticContent.ReadFile("resources" + path)
-	if err != nil {
-		w.WriteHeader(http.StatusNotFound)
-	}
-	w.Write(content)
 }
