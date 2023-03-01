@@ -5,6 +5,7 @@ import (
 	_ "embed"
 	"fmt"
 	"github.com/anhgelus/local-searchengine/src/customization"
+	"github.com/anhgelus/local-searchengine/src/features"
 	"github.com/anhgelus/local-searchengine/src/utils"
 	"github.com/pelletier/go-toml/v2"
 	"os"
@@ -79,9 +80,17 @@ func App() error {
 		if err != nil {
 			return fmt.Errorf("impossible de créer le dossier de configuration %s", err)
 		}
+		err = os.MkdirAll(filepath.Join(home, utils.Datas), 0764)
+		if err != nil {
+			return fmt.Errorf("impossible de créer le dossier de stockage %s", err)
+		}
 		file, err := os.Create(configPath)
 		if err != nil {
 			return fmt.Errorf("impossible de créer le fichier de configuration %s", err)
+		}
+		_, err = os.Create(filepath.Join(home, features.StatsFile))
+		if err != nil {
+			return fmt.Errorf("impossible de créer le fichier pour les stats %s", err)
 		}
 		_, err = file.Write(config)
 		if err != nil {
