@@ -1,6 +1,6 @@
 # Local SearchEngine
 
-Powerful customizable local search engine based on [Grafisearch](https://github.com/Grafikart/Grafisearch).
+Powerful customizable local search engine based on [Grafisearch](https://github.com/Grafikart/grafisearch).
 
 ## Features
 
@@ -59,6 +59,10 @@ LogoPath = ''
 ```
 
 And customize what do you want.
+
+##### Where the is stored?
+
+The data is stored in `~/.local/share/local-searchengine/`
 
 ## How does it work?
 

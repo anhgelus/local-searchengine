@@ -5,6 +5,7 @@ import (
 	_ "embed"
 	"fmt"
 	"github.com/anhgelus/local-searchengine/src/customization"
+	"github.com/anhgelus/local-searchengine/src/utils"
 	"github.com/pelletier/go-toml/v2"
 	"os"
 	"os/exec"
@@ -73,7 +74,7 @@ func App() error {
 			linuxPath,
 			exec.Command("systemctl", "enable", "--user", "local-searchengine.service"),
 		)
-		configPath := filepath.Join(home, ".config/local-searchengine/config.toml")
+		configPath := filepath.Join(home, utils.Config)
 		err := os.MkdirAll(filepath.Join(home, ".config/local-searchengine/"), 0764)
 		if err != nil {
 			return fmt.Errorf("impossible de créer le dossier de configuration %s", err)

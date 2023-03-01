@@ -53,9 +53,9 @@ func main() {
 	home := nixUser.HomeDir
 	switch runtime.GOOS {
 	case "darwin":
-		// TODO: get the config file
+		//TODO: get the config file
 	case "linux":
-		configPath := filepath.Join(home, ".config/local-searchengine/config.toml")
+		configPath := filepath.Join(home, utils.Config)
 		b, err := os.ReadFile(configPath)
 		if err != nil {
 			panic(err)
@@ -214,6 +214,7 @@ func serveStatic(w http.ResponseWriter, r *http.Request) {
 	content, err := staticContent.ReadFile("resources" + r.URL.Path)
 	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
+		return
 	}
 	w.Write(content)
 }
@@ -224,6 +225,7 @@ func serveLocal(w http.ResponseWriter, r *http.Request) {
 	content, err := utils.ReadFile(&realPath)
 	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
+		return
 	}
 	w.Write(content)
 }

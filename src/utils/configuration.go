@@ -6,6 +6,9 @@ import (
 	"strings"
 )
 
+const Config = ".config/local-searchengine/config.toml"
+const Datas = ".local/share/local-searchengine/"
+
 func GeneratePathForCss(path *string) string {
 	if !isLocal(path) {
 		return fmt.Sprintf("url('%s')", *path)
