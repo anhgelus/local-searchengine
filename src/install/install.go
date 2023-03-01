@@ -5,7 +5,6 @@ import (
 	_ "embed"
 	"fmt"
 	"github.com/anhgelus/local-searchengine/src/customization"
-	"github.com/anhgelus/local-searchengine/src/features"
 	"github.com/anhgelus/local-searchengine/src/utils"
 	"github.com/pelletier/go-toml/v2"
 	"os"
@@ -88,7 +87,7 @@ func App() error {
 		if err != nil {
 			return fmt.Errorf("impossible de créer le fichier de configuration %s", err)
 		}
-		_, err = os.Create(filepath.Join(home, features.StatsFile))
+		_, err = os.Create(filepath.Join(home, utils.StatsFile))
 		if err != nil {
 			return fmt.Errorf("impossible de créer le fichier pour les stats %s", err)
 		}

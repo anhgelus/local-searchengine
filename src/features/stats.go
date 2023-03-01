@@ -25,14 +25,12 @@ type StatsRow struct {
 	URL    string
 }
 
-const StatsFile = utils.Datas + "stats.csv"
-
 func LoadStats(an string) (*SearchStats, error) {
 	u, err := user.Current()
 	if err != nil {
 		return nil, err
 	}
-	f, err := os.OpenFile(filepath.Join(u.HomeDir, StatsFile), os.O_RDONLY, 0644)
+	f, err := os.OpenFile(filepath.Join(u.HomeDir, utils.StatsFile), os.O_RDONLY, 0644)
 	if err != nil {
 		return nil, err
 	}

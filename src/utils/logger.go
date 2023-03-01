@@ -12,6 +12,8 @@ import (
 	"time"
 )
 
+const StatsFile = Datas + "stats.csv"
+
 type logError struct {
 	Message string `json:"message"`
 }
@@ -53,13 +55,13 @@ func LogResult(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Open the grafisearch.csv file
+	// Open the stats.csv file
 	u, err := user.Current()
 	if err != nil {
 		LogErrorResponse(w, err)
 		return
 	}
-	f, err := os.OpenFile(filepath.Join(u.HomeDir, "grafisearch.csv"), os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	f, err := os.OpenFile(filepath.Join(u.HomeDir, StatsFile), os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		LogErrorResponse(w, err)
 		return
