@@ -1,0 +1,5 @@
+Version = '0.1'
+AppName = 'Local SearchEngine'
+BlockList = ['pinterest.com', 'allocine.com', 'jeuxvideo.com', 'lemonde.fr', 'w3schools.com', 'pinterest.fr']
+WallpaperPath = ''
+LogoPath = ''

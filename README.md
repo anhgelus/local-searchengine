@@ -15,6 +15,62 @@ Powerful customizable local search engine based on [Grafisearch](https://github.
 
 ## Installation
 
+### Docker
+
+If you want to try the searchengine or to use it in docker, you can!
+
+#### Setup the environment
+
+Clone the repository and enter in it.
+```bash
+$ git clone https://github.com/anhgelus/local-searchengine
+$ cd local-searchengine 
+```
+
+Copy the `example/config.toml` at the root of the project.
+```bash
+$ cp example/config.toml config.toml 
+```
+
+Create a new csv file for the stats at the root of the project.
+```bash
+$ touch stats.csv 
+```
+
+#### Creating the compose file
+
+Create a new compose file.
+```bash
+$ touch compose.yaml 
+```
+
+Put this information in the compose file.
+```yaml
+version: '3'
+
+services:
+  se: # se is for searchengine
+    build: . # Build the Dockerfile
+    ports:
+      - "8042:8042" # The port to connect to
+    volumes:
+      - "./config.toml:/root/.config/local-searchengine/config.toml" # Path to the config.toml
+      - "./stats.csv:/root/.local/share/local-searchengine/stats.csv" # Path to the stats file
+      # And put here a path to the local wallpaper 
+```
+
+#### Building and Starting
+
+Run and build the image.
+```bash
+$ docker compose up -d --build
+```
+
+Stop the container if you want to stop using this.
+```bash
+$ docker compose down
+```
+
 ### Linux
 
 Download the [latest binary](https://github.com/anhgelus/local-searchengine/releases/latest)
